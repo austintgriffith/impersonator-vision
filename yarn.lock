@@ -2567,9 +2567,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@impersonator/iframe@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@impersonator/iframe@npm:0.1.0"
+"@impersonator/iframe@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@impersonator/iframe@npm:0.1.1"
   dependencies:
     ethers: ^5.7.2
     react: ^18.2.0
@@ -2578,7 +2578,7 @@ __metadata:
     ethers: ^5.7.2
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: b226bdbf6d0f9129cf370633278303b8e5ad4005b7c54224ec09d32c71308cc29019ead38227ac605d81da29de19aace35a0e7a654e07cf1253cc583bd3a3ec0
+  checksum: 1c4970f395933927f637e6119fb22e970ba84e684de350d30a095b9c1d3484cdc3699983df243b81ec55cc1da30892c9588686db147e17322c492941170b660c
   languageName: node
   linkType: hard
 
@@ -3863,7 +3863,7 @@ __metadata:
   dependencies:
     "@ethersproject/providers": ~5.7.2
     "@heroicons/react": ~2.0.11
-    "@impersonator/iframe": ^0.1.0
+    "@impersonator/iframe": ^0.1.1
     "@rainbow-me/rainbowkit": 1.1.2
     "@trivago/prettier-plugin-sort-imports": ~4.1.1
     "@types/node": ^17.0.45
