@@ -1,13 +1,14 @@
 import React from "react";
 import { ImpersonatorIframe, useImpersonatorIframe } from "@impersonator/iframe";
 import type { NextPage } from "next";
-import { usePublicClient } from "wagmi";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { AddressInput, InputBase } from "~~/components/scaffold-eth";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 const Home: NextPage = () => {
   const { latestTransaction } = useImpersonatorIframe();
+
+  // i think eventually we want   const [impersonateAddress, setImpersonateAddress] = useLocalStorage<string>("impersonateAddress", "");
 
   const [impersonateAddress, setImpersonateAddress] = React.useState<string>("");
 
@@ -16,7 +17,9 @@ const Home: NextPage = () => {
     { name: "optimism", rpcUrl: " https://mainnet.optimism.io" },
   ];
 
-  const [appUrl, setAppUrl] = React.useState<string>("https://app.uniswap.org/pools?chain=mainnet");
+  const [appUrl, setAppUrl] = React.useState<string>(
+    "https://app.uniswap.org/swap?chain=mainnet&inputAmount=1&outputCurrency=0x6b175474e89094c44da98b954eedeac495271d0f&inputCurrency=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  );
 
   const handleAppUrlChange = (newValue: string) => {
     setAppUrl(newValue);
@@ -34,13 +37,13 @@ const Home: NextPage = () => {
     <>
       <MetaHeader />
       <div className="flex flex-col items-center justify-center p-8">
-        <h1 className="text-3xl font-bold">Impersonate</h1>
+        <h1 className="text-2xl font-bold">impersonate</h1>
         <AddressInput value={impersonateAddress} placeholder="vitalik.eth" onChange={handleAddressChange} />
-        <h1 className="text-3xl font-bold">at</h1>
+        <h1 className="text-2xl font-bold">at</h1>
         <div className="w-[400px]">
-          <InputBase value={appUrl} onChange={handleAppUrlChange} />
+          <InputBase placeholder="https://app.uniswap.org/swap" value={appUrl} onChange={handleAppUrlChange} />
         </div>
-        <h1 className="text-3xl font-bold">on</h1>
+        <h1 className="text-2xl font-bold">on</h1>
         <div className="w-[200px]">
           <select
             className="select select-bordered w-full max-w-xs "
