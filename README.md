@@ -1,6 +1,8 @@
 # 🕵️‍♂️ impersonator-example 
 
-####### Built with  [🏗 Scaffold-ETH 2](https://scaffoldeth.io/)
+> Built with  [🏗 Scaffold-ETH 2](https://scaffoldeth.io/)
+
+> Using [@impersonator/iframe] (https://www.npmjs.com/package/@impersonator/iframe)
 
 ```
 yarn install
