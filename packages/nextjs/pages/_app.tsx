@@ -15,16 +15,9 @@ import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { appChains } from "~~/services/web3/wagmiConnectors";
 import "~~/styles/globals.css";
 
-{
-  /*import { Header } from "~~/components/Header";*/
-}
-
 const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   const price = useNativeCurrencyPrice();
   const setNativeCurrencyPrice = useGlobalState(state => state.setNativeCurrencyPrice);
-  // This variable is required for initial client side rendering of correct theme for RainbowKit
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
-  const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
     if (price > 0) {
@@ -32,6 +25,23 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
     }
   }, [setNativeCurrencyPrice, price]);
 
+  return (
+    <>
+      <div className="flex flex-col min-h-screen">
+        <main className="relative flex flex-col flex-1">
+          <Component {...pageProps} />
+        </main>
+        <Footer />
+      </div>
+      <Toaster />
+    </>
+  );
+};
+
+const ScaffoldEthAppWithProviders = (props: AppProps) => {
+  // This variable is required for initial client side rendering of correct theme for RainbowKit
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const { isDarkMode } = useDarkMode();
   useEffect(() => {
     setIsDarkTheme(isDarkMode);
   }, [isDarkMode]);
@@ -45,18 +55,11 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
           avatar={BlockieAvatar}
           theme={isDarkTheme ? darkTheme() : lightTheme()}
         >
-          <div className="flex flex-col min-h-screen">
-            {/*<Header />*/}
-            <main className="relative flex flex-col flex-1">
-              <Component {...pageProps} />
-            </main>
-            <Footer />
-          </div>
-          <Toaster />
+          <ScaffoldEthApp {...props} />
         </RainbowKitProvider>
       </ImpersonatorIframeProvider>
     </WagmiConfig>
   );
 };
 
-export default ScaffoldEthApp;
+export default ScaffoldEthAppWithProviders;

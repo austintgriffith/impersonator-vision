@@ -3,7 +3,6 @@ import { ImpersonatorIframe, useImpersonatorIframe } from "@impersonator/iframe"
 import type { NextPage } from "next";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { AddressInput, InputBase } from "~~/components/scaffold-eth";
-import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 const Home: NextPage = () => {
   const { latestTransaction } = useImpersonatorIframe();
@@ -31,8 +30,6 @@ const Home: NextPage = () => {
 
   const [selectedNetwork, setSelectedNetwork] = React.useState(possibleNetworks[0]);
 
-  const targetNetwork = getTargetNetwork();
-  console.log("targetNetwork", targetNetwork);
   return (
     <>
       <MetaHeader />

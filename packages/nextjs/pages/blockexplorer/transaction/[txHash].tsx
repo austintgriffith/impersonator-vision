@@ -1,23 +1,24 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import type { NextPage } from "next";
-import { Transaction, TransactionReceipt, formatEther, formatUnits } from "viem";
+import { Hash, Transaction, TransactionReceipt, formatEther, formatUnits } from "viem";
 import { hardhat } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
-import { decodeTransactionData, getFunctionDetails, getTargetNetwork } from "~~/utils/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { decodeTransactionData, getFunctionDetails } from "~~/utils/scaffold-eth";
 import { replacer } from "~~/utils/scaffold-eth/common";
 
 const TransactionPage: NextPage = () => {
   const client = usePublicClient({ chainId: hardhat.id });
 
   const router = useRouter();
-  const { txHash } = router.query as { txHash?: `0x${string}` };
+  const { txHash } = router.query as { txHash?: Hash };
   const [transaction, setTransaction] = useState<Transaction>();
   const [receipt, setReceipt] = useState<TransactionReceipt>();
   const [functionCalled, setFunctionCalled] = useState<string>();
 
-  const configuredNetwork = getTargetNetwork();
+  const { targetNetwork } = useTargetNetwork();
 
   useEffect(() => {
     if (txHash) {
@@ -87,7 +88,7 @@ const TransactionPage: NextPage = () => {
                   <strong>Value:</strong>
                 </td>
                 <td>
-                  {formatEther(transaction.value)} {configuredNetwork.nativeCurrency.symbol}
+                  {formatEther(transaction.value)} {targetNetwork.nativeCurrency.symbol}
                 </td>
               </tr>
               <tr>

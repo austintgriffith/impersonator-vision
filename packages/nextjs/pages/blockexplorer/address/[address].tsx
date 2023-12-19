@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import fs from "fs";
 import { GetServerSideProps } from "next";
 import path from "path";
-import { createPublicClient, http } from "viem";
+import { Address as AddressType, createPublicClient, http } from "viem";
 import { hardhat } from "viem/chains";
 import {
   AddressCodeTab,
@@ -15,7 +15,6 @@ import {
 import { Address, Balance } from "~~/components/scaffold-eth";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useFetchBlocks } from "~~/hooks/scaffold-eth";
-import { getTargetNetwork } from "~~/utils/scaffold-eth";
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 type AddressCodeTabProps = {
@@ -24,7 +23,7 @@ type AddressCodeTabProps = {
 };
 
 type PageProps = {
-  address: string;
+  address: AddressType;
   contractData: AddressCodeTabProps | null;
 };
 
@@ -80,29 +79,23 @@ const AddressPage = ({ address, contractData }: PageProps) => {
         </div>
       </div>
       {isContract && (
-        <div className="tabs">
+        <div className="tabs tabs-lifted w-min">
           <button
-            className={`tab tab-lifted ${activeTab === "transactions" ? "tab-active" : ""}`}
+            className={`tab ${activeTab === "transactions" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("transactions")}
           >
             Transactions
           </button>
-          <button
-            className={`tab tab-lifted ${activeTab === "code" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("code")}
-          >
+          <button className={`tab ${activeTab === "code" ? "tab-active" : ""}`} onClick={() => setActiveTab("code")}>
             Code
           </button>
           <button
-            className={`tab tab-lifted ${activeTab === "storage" ? "tab-active" : ""}`}
+            className={`tab  ${activeTab === "storage" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("storage")}
           >
             Storage
           </button>
-          <button
-            className={`tab tab-lifted ${activeTab === "logs" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("logs")}
-          >
+          <button className={`tab  ${activeTab === "logs" ? "tab-active" : ""}`} onClick={() => setActiveTab("logs")}>
             Logs
           </button>
         </div>
@@ -155,7 +148,6 @@ async function fetchByteCodeAndAssembly(buildInfoDirectory: string, contractPath
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
-  const configuredNetwork = getTargetNetwork();
   const address = (context.params?.address as string).toLowerCase();
   const contracts = deployedContracts as GenericContractsDeclaration | null;
   const chainId = hardhat.id;
@@ -169,8 +161,8 @@ export const getServerSideProps: GetServerSideProps = async context => {
     "..",
     "..",
     "..",
-    `${configuredNetwork.network}`,
-    `${configuredNetwork.network === "hardhat" ? "artifacts" : "out"}`,
+    "hardhat",
+    "artifacts",
     "build-info",
   );
 

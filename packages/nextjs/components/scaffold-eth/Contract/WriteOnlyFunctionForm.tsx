@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { InheritanceTooltip } from "./InheritanceTooltip";
 import { Abi, AbiFunction } from "abitype";
 import { Address, TransactionReceipt } from "viem";
 import { useContractWrite, useNetwork, useWaitForTransaction } from "wagmi";
@@ -12,20 +13,30 @@ import {
   getParsedError,
 } from "~~/components/scaffold-eth";
 import { useTransactor } from "~~/hooks/scaffold-eth";
-import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import { notification } from "~~/utils/scaffold-eth";
 
 type WriteOnlyFunctionFormProps = {
+  abi: Abi;
   abiFunction: AbiFunction;
   onChange: () => void;
   contractAddress: Address;
+  inheritedFrom?: string;
 };
 
-export const WriteOnlyFunctionForm = ({ abiFunction, onChange, contractAddress }: WriteOnlyFunctionFormProps) => {
+export const WriteOnlyFunctionForm = ({
+  abi,
+  abiFunction,
+  onChange,
+  contractAddress,
+  inheritedFrom,
+}: WriteOnlyFunctionFormProps) => {
   const [form, setForm] = useState<Record<string, any>>(() => getInitialFormState(abiFunction));
   const [txValue, setTxValue] = useState<string | bigint>("");
   const { chain } = useNetwork();
   const writeTxn = useTransactor();
-  const writeDisabled = !chain || chain?.id !== getTargetNetwork().id;
+  const { targetNetwork } = useTargetNetwork();
+  const writeDisabled = !chain || chain?.id !== targetNetwork.id;
 
   const {
     data: result,
@@ -34,7 +45,7 @@ export const WriteOnlyFunctionForm = ({ abiFunction, onChange, contractAddress }
   } = useContractWrite({
     address: contractAddress,
     functionName: abiFunction.name,
-    abi: [abiFunction] as Abi,
+    abi: abi,
     args: getParsedContractFunctionArgs(form),
   });
 
@@ -80,7 +91,10 @@ export const WriteOnlyFunctionForm = ({ abiFunction, onChange, contractAddress }
   return (
     <div className="py-5 space-y-3 first:pt-0 last:pb-1">
       <div className={`flex gap-3 ${zeroInputs ? "flex-row justify-between items-center" : "flex-col"}`}>
-        <p className="font-medium my-0 break-words">{abiFunction.name}</p>
+        <p className="font-medium my-0 break-words">
+          {abiFunction.name}
+          <InheritanceTooltip inheritedFrom={inheritedFrom} />
+        </p>
         {inputs}
         {abiFunction.stateMutability === "payable" ? (
           <IntegerInput
