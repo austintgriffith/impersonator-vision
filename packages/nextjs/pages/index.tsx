@@ -17,7 +17,6 @@ const Home: NextPage = () => {
   const { address, networkName, url } = router.query;
   const { latestTransaction } = useImpersonatorIframe();
   const targetNetworks = getTargetNetworks();
-
   // i think eventually we want   const [impersonateAddress, setImpersonateAddress] = useLocalStorage<string>("impersonateAddress", "");
   const [impersonateAddress, setImpersonateAddress] = React.useState<string>(address as string);
 
@@ -50,7 +49,7 @@ const Home: NextPage = () => {
         query: {
           ...router.query,
           address: debounceImpersonateAddress,
-          // networkName: selectedNetwork ? selectedNetwork.name : "",
+          networkName: selectedNetwork ? selectedNetwork : "",
         },
       });
     }
@@ -69,7 +68,7 @@ const Home: NextPage = () => {
     if (Boolean(debounceSelectedNetworkName)) {
       router.push({
         pathname: router.pathname,
-        query: { ...router.query, networkName: selectedNetwork ? selectedNetwork.name : "" },
+        query: { ...router.query, networkName: selectedNetwork ? selectedNetwork : "" },
       });
     }
   }, [debounceSelectedNetworkName]);
@@ -79,14 +78,9 @@ const Home: NextPage = () => {
     if (address !== undefined) {
       setImpersonateAddress(address as string);
     }
-
     if (networkName !== undefined) {
-      const selectedNetwork = possibleNetworks.find(network => network.name === networkName);
-      if (selectedNetwork) {
-        setSelectedNetwork(selectedNetwork);
-      }
+      setSelectedNetwork(networkName);
     }
-
     if (url !== undefined) {
       setAppUrl(url as string);
     }
@@ -105,7 +99,7 @@ const Home: NextPage = () => {
         <h1 className="text-2xl font-bold">on</h1>
         <div className="w-[200px]">
           <select
-            // key={selectedNetwork.name}
+            //key={selectedNetwork.name}
             className="select select-bordered w-full max-w-xs "
             defaultValue={selectedNetwork ? selectedNetwork.rpcUrl : ""}
             value={selectedNetwork ? selectedNetwork.rpcUrl : ""}
