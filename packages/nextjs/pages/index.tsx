@@ -110,7 +110,7 @@ const Home: NextPage = () => {
             defaultValue={selectedNetwork ? selectedNetwork.rpcUrl : ""}
             value={selectedNetwork ? selectedNetwork.rpcUrl : ""}
             onChange={e => {
-              setSelectedNetwork(targetNetworks[e.target.selectedIndex]);
+              setSelectedNetwork(targetNetworks[e.target.selectedIndex].rpcUrls.default.http[0]);
             }}
           >
             {targetNetworks.map((network: any) => {
@@ -129,7 +129,7 @@ const Home: NextPage = () => {
         >
           {debounceImpersonateAddress && (
             <div>
-              {selectedNetwork && selectedNetwork.rpcUrl && debounceImpersonateAddress && appUrl ? (
+              {selectedNetwork && selectedNetwork && debounceImpersonateAddress && appUrl ? (
                 <div className="w-full rounded-md p-1">
                   <ImpersonatorIframe
                     key={selectedNetwork.rpcUrl + debounceImpersonateAddress + appUrl}
@@ -137,7 +137,7 @@ const Home: NextPage = () => {
                     width={"100%"} //set it to the browser width
                     src={appUrl}
                     address={debounceImpersonateAddress}
-                    rpcUrl={selectedNetwork.rpcUrl}
+                    rpcUrl={selectedNetwork}
                   />
                 </div>
               ) : (
