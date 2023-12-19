@@ -3,19 +3,15 @@ import { ImpersonatorIframe, useImpersonatorIframe } from "@impersonator/iframe"
 import type { NextPage } from "next";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { AddressInput, InputBase } from "~~/components/scaffold-eth";
-import { getTargetNetwork } from "~~/utils/scaffold-eth";
+import { getTargetNetworks } from "~~/utils/scaffold-eth";
 
 const Home: NextPage = () => {
   const { latestTransaction } = useImpersonatorIframe();
+  const targetNetworks = getTargetNetworks();
 
   // i think eventually we want   const [impersonateAddress, setImpersonateAddress] = useLocalStorage<string>("impersonateAddress", "");
 
   const [impersonateAddress, setImpersonateAddress] = React.useState<string>("");
-
-  const possibleNetworks = [
-    { name: "mainnet", rpcUrl: "https://cloudflare-eth.com" },
-    { name: "optimism", rpcUrl: " https://mainnet.optimism.io" },
-  ];
 
   const [appUrl, setAppUrl] = React.useState<string>(
     "https://app.uniswap.org/swap?chain=mainnet&inputAmount=1&outputCurrency=0x6b175474e89094c44da98b954eedeac495271d0f&inputCurrency=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -29,10 +25,8 @@ const Home: NextPage = () => {
     setImpersonateAddress(newValue);
   };
 
-  const [selectedNetwork, setSelectedNetwork] = React.useState(possibleNetworks[0]);
+  const [selectedNetwork, setSelectedNetwork] = React.useState(targetNetworks[0]);
 
-  const targetNetwork = getTargetNetwork();
-  console.log("targetNetwork", targetNetwork);
   return (
     <>
       <MetaHeader />
@@ -48,12 +42,12 @@ const Home: NextPage = () => {
           <select
             className="select select-bordered w-full max-w-xs "
             onChange={e => {
-              setSelectedNetwork(possibleNetworks[e.target.selectedIndex]);
+              setSelectedNetwork(targetNetworks[e.target.selectedIndex]);
             }}
           >
-            {possibleNetworks.map(network => {
+            {targetNetworks.map(network => {
               return (
-                <option key={network.name} value={network.rpcUrl}>
+                <option key={network.name} value={network.rpcUrls.default.http[0]}>
                   {network.name}
                 </option>
               );
@@ -63,14 +57,14 @@ const Home: NextPage = () => {
       </div>
       <div className="flex items-center flex-col flex-grow pt-10">
         <div className={"border-2 border-gray-200 rounded-md p-4"}>
-          {selectedNetwork.rpcUrl && impersonateAddress && appUrl ? (
+          {selectedNetwork.rpcUrls.default.http[0] && impersonateAddress && appUrl ? (
             <ImpersonatorIframe
-              key={selectedNetwork.rpcUrl + impersonateAddress + appUrl}
+              key={selectedNetwork.rpcUrls.default.http[0] + impersonateAddress + appUrl}
               width={"1400px"} //set it to the browser width
               height={"1200px"}
               src={appUrl}
               address={impersonateAddress}
-              rpcUrl={selectedNetwork.rpcUrl}
+              rpcUrl={selectedNetwork.rpcUrls.default.http[0]}
             />
           ) : (
             ""

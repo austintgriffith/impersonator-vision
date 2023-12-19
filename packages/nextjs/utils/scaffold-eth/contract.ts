@@ -36,18 +36,23 @@ const deepMergeContracts = <D extends Record<PropertyKey, any>, S extends Record
 };
 const contractsData = deepMergeContracts(deployedContractsData, externalContractsData);
 
+export type InheritedFunctions = { readonly [key: string]: string };
+
+export type GenericContract = {
+  address: Address;
+  abi: Abi;
+  inheritedFunctions?: InheritedFunctions;
+};
+
 export type GenericContractsDeclaration = {
   [chainId: number]: {
-    [contractName: string]: {
-      address: Address;
-      abi: Abi;
-    };
+    [contractName: string]: GenericContract;
   };
 };
 
 export const contracts = contractsData as GenericContractsDeclaration | null;
 
-type ConfiguredChainId = (typeof scaffoldConfig)["targetNetwork"]["id"];
+type ConfiguredChainId = (typeof scaffoldConfig)["targetNetworks"][0]["id"];
 
 type IsContractDeclarationMissing<TYes, TNo> = typeof contractsData extends { [key in ConfiguredChainId]: any }
   ? TNo
@@ -81,7 +86,9 @@ export type AbiFunctionOutputs<TAbi extends Abi, TFunctionName extends string> =
 
 export type AbiFunctionReturnType<TAbi extends Abi, TFunctionName extends string> = IsContractDeclarationMissing<
   any,
-  AbiParametersToPrimitiveTypes<AbiFunctionOutputs<TAbi, TFunctionName>>[0]
+  AbiParametersToPrimitiveTypes<AbiFunctionOutputs<TAbi, TFunctionName>> extends readonly [any]
+    ? AbiParametersToPrimitiveTypes<AbiFunctionOutputs<TAbi, TFunctionName>>[0]
+    : AbiParametersToPrimitiveTypes<AbiFunctionOutputs<TAbi, TFunctionName>>
 >;
 
 export type AbiEventInputs<TAbi extends Abi, TEventName extends ExtractAbiEventNames<TAbi>> = ExtractAbiEvent<
@@ -232,6 +239,8 @@ export type UseScaffoldEventHistoryConfig<
   blockData?: TBlockData;
   transactionData?: TTransactionData;
   receiptData?: TReceiptData;
+  watch?: boolean;
+  enabled?: boolean;
 };
 
 export type UseScaffoldEventHistoryData<

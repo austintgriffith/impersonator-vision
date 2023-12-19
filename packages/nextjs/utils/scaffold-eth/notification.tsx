@@ -1,5 +1,5 @@
 import React from "react";
-import { toast } from "react-hot-toast";
+import { ToastPosition, toast } from "react-hot-toast";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   CheckCircleIcon,
@@ -9,20 +9,18 @@ import {
 } from "@heroicons/react/24/solid";
 import { Spinner } from "~~/components/assets/Spinner";
 
-type TPositions = "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
-
-type TNotificationProps = {
+type NotificationProps = {
   content: React.ReactNode;
   status: "success" | "info" | "loading" | "error" | "warning";
   duration?: number;
   icon?: string;
-  position?: TPositions;
+  position?: ToastPosition;
 };
 
 type NotificationOptions = {
   duration?: number;
   icon?: string;
-  position?: TPositions;
+  position?: ToastPosition;
 };
 
 const ENUM_STATUSES = {
@@ -34,7 +32,7 @@ const ENUM_STATUSES = {
 };
 
 const DEFAULT_DURATION = 3000;
-const DEFAULT_POSITION: TPositions = "top-center";
+const DEFAULT_POSITION: ToastPosition = "top-center";
 
 /**
  * Custom Notification
@@ -45,7 +43,7 @@ const Notification = ({
   duration = DEFAULT_DURATION,
   icon,
   position = DEFAULT_POSITION,
-}: TNotificationProps) => {
+}: NotificationProps) => {
   return toast.custom(
     t => (
       <div
@@ -57,7 +55,7 @@ const Notification = ({
         }`}
       >
         <div className="text-2xl self-start">{icon ? icon : ENUM_STATUSES[status]}</div>
-        <div className={`break-all whitespace-pre-line ${icon ? "mt-1" : ""}`}>{content}</div>
+        <div className={`overflow-x-hidden break-words whitespace-pre-line ${icon ? "mt-1" : ""}`}>{content}</div>
 
         <div className={`cursor-pointer text-lg ${icon ? "mt-1" : ""}`} onClick={() => toast.dismiss(t.id)}>
           <XMarkIcon className="w-6 cursor-pointer" onClick={() => toast.remove(t.id)} />

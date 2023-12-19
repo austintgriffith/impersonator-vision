@@ -30,7 +30,8 @@
     "verify": "yarn workspace @se-2/hardhat verify"
   },
   "resolutions": {
-    "usehooks-ts@^2.7.2": "patch:usehooks-ts@npm:^2.7.2#./.yarn/patches/usehooks-ts-npm-2.7.2-fceffe0e43.patch"
+    "usehooks-ts@^2.7.2": "patch:usehooks-ts@npm:^2.7.2#./.yarn/patches/usehooks-ts-npm-2.7.2-fceffe0e43.patch",
+    "@types/react": "18.2.25"
   },
   "devDependencies": {
     "husky": "~8.0.3",
