@@ -7,24 +7,22 @@ import { MetaHeader } from "~~/components/MetaHeader";
 import { AddressInput, InputBase } from "~~/components/scaffold-eth";
 import { getTargetNetworks } from "~~/utils/scaffold-eth";
 
-const possibleNetworks = [
-  { name: "mainnet", rpcUrl: "https://cloudflare-eth.com" },
-  { name: "optimism", rpcUrl: " https://mainnet.optimism.io" },
-];
+// const possibleNetworks = [
+//   { name: "mainnet", rpcUrl: "https://cloudflare-eth.com" },
+//   { name: "optimism", rpcUrl: " https://mainnet.optimism.io" },
+// ];
 
 const Home: NextPage = () => {
   const router = useRouter();
   const { address, networkName, url } = router.query;
   const { latestTransaction } = useImpersonatorIframe();
   const targetNetworks = getTargetNetworks();
-
   // i think eventually we want   const [impersonateAddress, setImpersonateAddress] = useLocalStorage<string>("impersonateAddress", "");
   const [impersonateAddress, setImpersonateAddress] = React.useState<string>(address as string);
 
-  const prevSelectedNetwork = possibleNetworks.find(network => network.name === networkName);
-  const [selectedNetwork, setSelectedNetwork] = React.useState<any>(
-    prevSelectedNetwork ? prevSelectedNetwork : undefined,
-  );
+  //const prevSelectedNetwork = possibleNetworks.find(network => network.name === networkName);
+  const [selectedNetwork, setSelectedNetwork] = React.useState<any>();
+  //prevSelectedNetwork ? prevSelectedNetwork : undefined,
   const [appUrl, setAppUrl] = React.useState<string>(
     // "https://app.uniswap.org/swap?chain=mainnet&inputAmount=1&outputCurrency=0x6b175474e89094c44da98b954eedeac495271d0f&inputCurrency=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     "",
@@ -50,7 +48,7 @@ const Home: NextPage = () => {
         query: {
           ...router.query,
           address: debounceImpersonateAddress,
-          // networkName: selectedNetwork ? selectedNetwork.name : "",
+          networkName: selectedNetwork ? selectedNetwork : "https://cloudflare-eth.com",
         },
       });
     }
@@ -69,7 +67,7 @@ const Home: NextPage = () => {
     if (Boolean(debounceSelectedNetworkName)) {
       router.push({
         pathname: router.pathname,
-        query: { ...router.query, networkName: selectedNetwork ? selectedNetwork.name : "" },
+        query: { ...router.query, networkName: selectedNetwork ? selectedNetwork : "https://cloudflare-eth.com" },
       });
     }
   }, [debounceSelectedNetworkName]);
@@ -79,14 +77,9 @@ const Home: NextPage = () => {
     if (address !== undefined) {
       setImpersonateAddress(address as string);
     }
-
     if (networkName !== undefined) {
-      const selectedNetwork = possibleNetworks.find(network => network.name === networkName);
-      if (selectedNetwork) {
-        setSelectedNetwork(selectedNetwork);
-      }
+      setSelectedNetwork(networkName);
     }
-
     if (url !== undefined) {
       setAppUrl(url as string);
     }
@@ -105,10 +98,10 @@ const Home: NextPage = () => {
         <h1 className="text-2xl font-bold">on</h1>
         <div className="w-[200px]">
           <select
-            // key={selectedNetwork.name}
+            key={selectedNetwork}
             className="select select-bordered w-full max-w-xs "
-            defaultValue={selectedNetwork ? selectedNetwork.rpcUrl : ""}
-            value={selectedNetwork ? selectedNetwork.rpcUrl : ""}
+            defaultValue={selectedNetwork ? selectedNetwork : ""}
+            value={selectedNetwork}
             onChange={e => {
               setSelectedNetwork(targetNetworks[e.target.selectedIndex].rpcUrls.default.http[0]);
             }}
@@ -129,10 +122,10 @@ const Home: NextPage = () => {
         >
           {debounceImpersonateAddress && (
             <div>
-              {selectedNetwork && selectedNetwork && debounceImpersonateAddress && appUrl ? (
+              {selectedNetwork && debounceImpersonateAddress && appUrl ? (
                 <div className="w-full rounded-md p-1">
                   <ImpersonatorIframe
-                    key={selectedNetwork.rpcUrl + debounceImpersonateAddress + appUrl}
+                    key={selectedNetwork + debounceImpersonateAddress + appUrl}
                     height={"1200px"}
                     width={"100%"} //set it to the browser width
                     src={appUrl}
