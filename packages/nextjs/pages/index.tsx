@@ -1,160 +1,143 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { ImpersonatorIframe, useImpersonatorIframe } from "@impersonator/iframe";
 import type { NextPage } from "next";
+import { ParsedUrlQuery } from "querystring";
 import { useDebounce } from "usehooks-ts";
+import { isAddress } from "viem";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { AddressInput, InputBase } from "~~/components/scaffold-eth";
 import { getTargetNetworks } from "~~/utils/scaffold-eth";
 
-// const possibleNetworks = [
-//   { name: "mainnet", rpcUrl: "https://cloudflare-eth.com" },
-//   { name: "optimism", rpcUrl: " https://mainnet.optimism.io" },
-// ];
+const targetNetworks = getTargetNetworks();
+
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+interface ParsedPageQuery extends ParsedUrlQuery {
+  address?: string;
+  networkId?: string;
+  url?: string;
+}
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { address, networkName, url } = router.query;
+  const { address, networkId, url } = router.query as ParsedPageQuery;
   const { latestTransaction } = useImpersonatorIframe();
-  const targetNetworks = getTargetNetworks();
-  // i think eventually we want   const [impersonateAddress, setImpersonateAddress] = useLocalStorage<string>("impersonateAddress", "");
-  const [impersonateAddress, setImpersonateAddress] = React.useState<string>(address as string);
+  const [impersonateAddress, setImpersonateAddress] = useState(address ?? "");
 
-  //const prevSelectedNetwork = possibleNetworks.find(network => network.name === networkName);
-  const [selectedNetwork, setSelectedNetwork] = React.useState<any>();
-  //prevSelectedNetwork ? prevSelectedNetwork : undefined,
-  const [appUrl, setAppUrl] = React.useState<string>(
-    // "https://app.uniswap.org/swap?chain=mainnet&inputAmount=1&outputCurrency=0x6b175474e89094c44da98b954eedeac495271d0f&inputCurrency=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    "",
-  );
+  const [selectedNetwork, setSelectedNetwork] = useState(() => {
+    if (networkId !== undefined) {
+      const network = targetNetworks.find(network => network.id === Number(networkId));
+      return network ?? targetNetworks[0];
+    }
+    return targetNetworks[0];
+  });
+  const [appUrl, setAppUrl] = useState(url ?? "");
 
   const debounceImpersonateAddress = useDebounce(impersonateAddress, 1000);
-  const debounceSelectedNetworkName = useDebounce(selectedNetwork, 500);
   const debounceAppUrl = useDebounce(appUrl, 500);
 
-  const handleAppUrlChange = (newValue: string) => {
-    setAppUrl(newValue);
-  };
-
-  const handleAddressChange = (newValue: string) => {
-    setImpersonateAddress(newValue);
-  };
-
-  // capture address,network and app url on debounce
   useEffect(() => {
-    if (Boolean(debounceImpersonateAddress)) {
-      router.push({
-        pathname: router.pathname,
-        query: {
-          ...router.query,
-          address: debounceImpersonateAddress,
-          networkName: selectedNetwork ? selectedNetwork : "https://cloudflare-eth.com",
-        },
-      });
-    }
+    router.push({
+      pathname: router.pathname,
+      query: {
+        ...router.query,
+        address: debounceImpersonateAddress,
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounceImpersonateAddress]);
 
   useEffect(() => {
-    if (Boolean(debounceAppUrl)) {
-      router.push({
-        pathname: router.pathname,
-        query: { ...router.query, url: appUrl },
-      });
-    }
+    router.push({
+      pathname: router.pathname,
+      query: { ...router.query, url: debounceAppUrl },
+    });
+    return;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounceAppUrl]);
-
-  useEffect(() => {
-    if (Boolean(debounceSelectedNetworkName)) {
-      router.push({
-        pathname: router.pathname,
-        query: { ...router.query, networkName: selectedNetwork ? selectedNetwork : "https://cloudflare-eth.com" },
-      });
-    }
-  }, [debounceSelectedNetworkName]);
-
-  // set default values on new page reload
-  useEffect(() => {
-    if (address !== undefined) {
-      setImpersonateAddress(address as string);
-    }
-    if (networkName !== undefined) {
-      setSelectedNetwork(networkName);
-    }
-    if (url !== undefined) {
-      setAppUrl(url as string);
-    }
-  }, [address, networkName, url]);
 
   return (
     <>
       <MetaHeader />
       <div className="flex flex-col items-center justify-center p-8">
         <h1 className="text-2xl font-bold">impersonate</h1>
-        <AddressInput value={impersonateAddress} placeholder="vitalik.eth" onChange={handleAddressChange} />
+        <AddressInput value={impersonateAddress} placeholder="vitalik.eth" onChange={setImpersonateAddress} />
         <h1 className="text-2xl font-bold">at</h1>
         <div className="w-[400px]">
-          <InputBase placeholder="https://app.uniswap.org/swap" value={appUrl} onChange={handleAppUrlChange} />
+          <InputBase placeholder="https://app.uniswap.org/swap" value={appUrl} onChange={setAppUrl} />
         </div>
         <h1 className="text-2xl font-bold">on</h1>
         <div className="w-[200px]">
           <select
-            key={selectedNetwork}
             className="select select-bordered w-full max-w-xs "
-            defaultValue={selectedNetwork ? selectedNetwork : ""}
-            value={selectedNetwork}
             onChange={e => {
-              setSelectedNetwork(targetNetworks[e.target.selectedIndex].rpcUrls.default.http[0]);
+              setSelectedNetwork(targetNetworks[e.target.selectedIndex]);
+              router.push({
+                pathname: router.pathname,
+                query: {
+                  ...router.query,
+                  networkName: targetNetworks[e.target.selectedIndex].id,
+                },
+              });
             }}
           >
-            {targetNetworks.map((network: any) => {
+            {targetNetworks.map(network => {
               return (
-                <option key={network.name} value={network.rpcUrls.default.http[0]}>
+                <option key={network.id} value={network.rpcUrls.default.http[0]}>
                   {network.name}
                 </option>
               );
             })}
-          </select>{" "}
+          </select>
         </div>
       </div>
-      <div className="flex items-center flex-col flex-grow p-4 rounded-md">
-        <div
-          className={`${Boolean(debounceImpersonateAddress) && "border-2 border-gray-200"} rounded-md  w-full h-full`}
-        >
-          {debounceImpersonateAddress && (
+      <div className="space-y-4">
+        {debounceImpersonateAddress && !isAddress(debounceImpersonateAddress) && (
+          <h1 className="text-xl font-bold text-center">Please enter a valid address</h1>
+        )}
+        {debounceAppUrl && !isValidUrl(debounceAppUrl) && (
+          <h1 className="text-xl font-bold text-center">Please enter a valid URL</h1>
+        )}
+      </div>
+      {isAddress(debounceImpersonateAddress) && isValidUrl(debounceAppUrl) ? (
+        <div className="flex items-center flex-col flex-grow p-4 rounded-md">
+          <div className="border-2 border-gray-200 rounded-md  w-full h-full">
             <div>
-              {selectedNetwork && debounceImpersonateAddress && appUrl ? (
-                <div className="w-full rounded-md p-1">
-                  <ImpersonatorIframe
-                    key={selectedNetwork + debounceImpersonateAddress + appUrl}
-                    height={"1200px"}
-                    width={"100%"} //set it to the browser width
-                    src={appUrl}
-                    address={debounceImpersonateAddress}
-                    rpcUrl={selectedNetwork}
-                  />
-                </div>
-              ) : (
-                ""
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="p-4">
-          {latestTransaction ? (
-            <>
-              <h1 className="text-xl font-bold mb-2">Latest transaction:</h1>
-              <div className="p-2 bg-gray-800 text-white rounded-md overflow-auto">
-                <pre className="font-mono text-sm">
-                  <code>{JSON.stringify(latestTransaction, null, 2)}</code>
-                </pre>
+              <div className="w-full rounded-md p-1">
+                <ImpersonatorIframe
+                  key={selectedNetwork.name + debounceImpersonateAddress + debounceAppUrl}
+                  height={"1200px"}
+                  width={"100%"} //set it to the browser width
+                  src={debounceAppUrl}
+                  address={debounceImpersonateAddress}
+                  rpcUrl={selectedNetwork.rpcUrls.default.http[0]}
+                />
               </div>
-            </>
-          ) : (
-            ""
-          )}
+            </div>
+          </div>
+          <div className="p-4">
+            {latestTransaction ? (
+              <>
+                <h1 className="text-xl font-bold mb-2">Latest transaction:</h1>
+                <div className="p-2 bg-gray-800 text-white rounded-md overflow-auto">
+                  <pre className="font-mono text-sm">
+                    <code>{JSON.stringify(latestTransaction, null, 2)}</code>
+                  </pre>
+                </div>
+              </>
+            ) : null}
+          </div>
         </div>
-      </div>
+      ) : null}
     </>
   );
 };
