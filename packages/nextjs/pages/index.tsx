@@ -78,13 +78,19 @@ const Home: NextPage = () => {
     if (address !== undefined) {
       setImpersonateAddress(address as string);
     }
+
+    if (selectedNetwork == undefined) {
+      setSelectedNetwork(possibleNetworks[0].rpcUrl);
+    }
+
     if (networkName !== undefined) {
       setSelectedNetwork(networkName);
     }
+
     if (url !== undefined) {
       setAppUrl(url as string);
     }
-  }, [address, networkName, url]);
+  }, [address, networkName, url, selectedNetwork]);
 
   return (
     <>
@@ -99,10 +105,10 @@ const Home: NextPage = () => {
         <h1 className="text-2xl font-bold">on</h1>
         <div className="w-[200px]">
           <select
-            //key={selectedNetwork.name}
+            key={selectedNetwork}
             className="select select-bordered w-full max-w-xs "
-            defaultValue={selectedNetwork ? selectedNetwork.rpcUrl : ""}
-            value={selectedNetwork ? selectedNetwork.rpcUrl : ""}
+            defaultValue={selectedNetwork ? selectedNetwork : ""}
+            value={selectedNetwork}
             onChange={e => {
               setSelectedNetwork(targetNetworks[e.target.selectedIndex].rpcUrls.default.http[0]);
             }}
@@ -126,7 +132,7 @@ const Home: NextPage = () => {
               {selectedNetwork && selectedNetwork && debounceImpersonateAddress && appUrl ? (
                 <div className="w-full rounded-md p-1">
                   <ImpersonatorIframe
-                    key={selectedNetwork.rpcUrl + debounceImpersonateAddress + appUrl}
+                    key={selectedNetwork + debounceImpersonateAddress + appUrl}
                     height={"1200px"}
                     width={"100%"} //set it to the browser width
                     src={appUrl}
