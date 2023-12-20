@@ -48,7 +48,7 @@ const Home: NextPage = () => {
         query: {
           ...router.query,
           address: debounceImpersonateAddress,
-          networkName: selectedNetwork ? selectedNetwork : "",
+          networkName: selectedNetwork ? selectedNetwork : "https://cloudflare-eth.com",
         },
       });
     }
@@ -67,7 +67,7 @@ const Home: NextPage = () => {
     if (Boolean(debounceSelectedNetworkName)) {
       router.push({
         pathname: router.pathname,
-        query: { ...router.query, networkName: selectedNetwork ? selectedNetwork : "" },
+        query: { ...router.query, networkName: selectedNetwork ? selectedNetwork : "https://cloudflare-eth.com" },
       });
     }
   }, [debounceSelectedNetworkName]);
@@ -122,7 +122,7 @@ const Home: NextPage = () => {
         >
           {debounceImpersonateAddress && (
             <div>
-              {selectedNetwork && selectedNetwork && debounceImpersonateAddress && appUrl ? (
+              {selectedNetwork && debounceImpersonateAddress && appUrl ? (
                 <div className="w-full rounded-md p-1">
                   <ImpersonatorIframe
                     key={selectedNetwork + debounceImpersonateAddress + appUrl}
