@@ -7,10 +7,10 @@ import { MetaHeader } from "~~/components/MetaHeader";
 import { AddressInput, InputBase } from "~~/components/scaffold-eth";
 import { getTargetNetworks } from "~~/utils/scaffold-eth";
 
-const possibleNetworks = [
-  { name: "mainnet", rpcUrl: "https://cloudflare-eth.com" },
-  { name: "optimism", rpcUrl: " https://mainnet.optimism.io" },
-];
+// const possibleNetworks = [
+//   { name: "mainnet", rpcUrl: "https://cloudflare-eth.com" },
+//   { name: "optimism", rpcUrl: " https://mainnet.optimism.io" },
+// ];
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -20,10 +20,9 @@ const Home: NextPage = () => {
   // i think eventually we want   const [impersonateAddress, setImpersonateAddress] = useLocalStorage<string>("impersonateAddress", "");
   const [impersonateAddress, setImpersonateAddress] = React.useState<string>(address as string);
 
-  const prevSelectedNetwork = possibleNetworks.find(network => network.name === networkName);
-  const [selectedNetwork, setSelectedNetwork] = React.useState<any>(
-    prevSelectedNetwork ? prevSelectedNetwork : undefined,
-  );
+  //const prevSelectedNetwork = possibleNetworks.find(network => network.name === networkName);
+  const [selectedNetwork, setSelectedNetwork] = React.useState<any>();
+  //prevSelectedNetwork ? prevSelectedNetwork : undefined,
   const [appUrl, setAppUrl] = React.useState<string>(
     // "https://app.uniswap.org/swap?chain=mainnet&inputAmount=1&outputCurrency=0x6b175474e89094c44da98b954eedeac495271d0f&inputCurrency=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     "",
@@ -78,19 +77,13 @@ const Home: NextPage = () => {
     if (address !== undefined) {
       setImpersonateAddress(address as string);
     }
-
-    if (selectedNetwork == undefined) {
-      setSelectedNetwork(possibleNetworks[0].rpcUrl);
-    }
-
     if (networkName !== undefined) {
       setSelectedNetwork(networkName);
     }
-
     if (url !== undefined) {
       setAppUrl(url as string);
     }
-  }, [address, networkName, url, selectedNetwork]);
+  }, [address, networkName, url]);
 
   return (
     <>
